@@ -2,12 +2,14 @@ import tkinter.messagebox as messagebox
 from models.user_model import UserModel
 from views.login_view import LoginView
 from controllers.buku_controller import BukuController
+from controllers.register_controller import RegisterController
 
 class AuthController:
     def __init__(self):
         self.model = UserModel()
         self.view = LoginView()
         self.view.btn_login.configure(command=self.proses_login)
+        self.view.btn_register.configure(command=self.buka_register)
 
     def proses_login(self):
         username = self.view.entry_username.get()
@@ -28,6 +30,11 @@ class AuthController:
             app_utama.run()
         else:
             messagebox.showerror("Login Gagal", "Username atau Password salah!")
+
+    def buka_register(self):
+        # Tutup jendela Login, buka jendela Daftar Akun
+        self.view.destroy()
+        RegisterController().run()
 
     def run(self):
         self.view.mainloop()

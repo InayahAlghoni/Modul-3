@@ -12,12 +12,18 @@ class BukuController:
         # Menampilkan informasi role pada judul jendela aplikasi
         self.view.title(f"Sistem Manajemen Perpustakaan - Mode: {self.user_role.upper()}")
 
-        # Binding tombol simpan
+        # Binding tombol & event tabel
         self.view.btn_simpan.configure(command=self.simpan_data)
+        self.view.btn_perbarui.configure(command=self.perbarui_data)
+        self.view.btn_hapus.configure(command=self.hapus_data)
+        self.view.btn_logout.configure(command=self.logout)
+        self.view.tabel.bind("<<TreeviewSelect>>", self.pilih_data)
 
-        # OTORISASI: Jika bukan admin, nonaktifkan form input dan tombol simpan
+        # OTORISASI: Jika bukan admin, nonaktifkan form input, tombol simpan, perbarui, dan hapus
         if self.user_role != "admin":
             self.view.btn_simpan.configure(state="disabled", text="Akses Terkunci (Khusus Admin)")
+            self.view.btn_perbarui.configure(state="disabled")
+            self.view.btn_hapus.configure(state="disabled")
             self.view.entry_judul.configure(state="disabled")
             self.view.entry_penulis.configure(state="disabled")
             self.view.entry_tahun.configure(state="disabled")
@@ -54,9 +60,6 @@ class BukuController:
         else:
             messagebox.showerror("Error", "Gagal menyimpan data.")
 
-    def run(self):
-        self.view.mainloop()
-
     def pilih_data(self, event=None):
         selected_item = self.view.tabel.selection()
 
@@ -75,6 +78,11 @@ class BukuController:
         self.view.entry_tahun.insert(0, values[3])
 
     def perbarui_data(self):
+        # Proteksi ganda di level Controller
+        if self.user_role != "admin":
+            messagebox.showerror("Akses Ditolak", "Anda tidak memiliki izin untuk memperbarui data!")
+            return
+
         # Mengambil baris yang dipilih
         selected_item = self.view.tabel.selection()
 
@@ -124,6 +132,11 @@ class BukuController:
 
         
     def hapus_data(self):
+        # Proteksi ganda di level Controller
+        if self.user_role != "admin":
+            messagebox.showerror("Akses Ditolak", "Anda tidak memiliki izin untuk menghapus data!")
+            return
+
         # Mengambil baris yang dipilih
         selected_item = self.view.tabel.selection()
 
@@ -166,6 +179,14 @@ class BukuController:
             )
 
 
+
+    def logout(self):
+        # Tutup jendela perpustakaan, lalu kembali ke jendela Login
+        self.view.destroy()
+        # Import di dalam fungsi untuk menghindari circular import
+        # (auth_controller sudah meng-import buku_controller di level modul)
+        from controllers.auth_controller import AuthController
+        AuthController().run()
 
     # Fungsi untuk menyalakan aplikasi
     def run(self):
