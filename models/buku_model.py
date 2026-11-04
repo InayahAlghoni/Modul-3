@@ -29,5 +29,47 @@ class BukuModel:
             return True
         return False
 
+    def update_buku(self, id_buku, judul, penulis, tahun_terbit):
+        if not self.conn:
+            return False
+
+        try:
+            cursor = self.conn.cursor()
+            query = """
+                UPDATE buku
+                SET judul = %s, penulis = %s, tahun_terbit = %s
+                WHERE id_buku = %s
+            """
+            cursor.execute(
+                query, (judul, penulis, tahun_terbit, id_buku)
+            )
+            self.conn.commit()
+            cursor.close()
+            return True
+
+        except Exception as e:
+            print("Gagal memperbarui buku:", e)
+            self.conn.rollback()
+            return False
+
+
+    def delete_buku(self, id_buku):
+        if not self.conn:
+            return False
+
+        try:
+            cursor = self.conn.cursor()
+            query = "DELETE FROM buku WHERE id_buku = %s"
+            cursor.execute(query, (id_buku,))
+            self.conn.commit()
+            cursor.close()
+            return True
+
+        except Exception as e:
+            print("Gagal menghapus buku:", e)
+            self.conn.rollback()
+            return False
+
+
 
     
